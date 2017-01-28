@@ -5,8 +5,6 @@ extern crate mio;
 use std::path::Path;
 use std::io::{Read, Write};
 use std::str;
-use std::thread;
-use std::time::Duration;
 use std::collections::HashMap;
 use std::fs;
 
@@ -66,7 +64,7 @@ impl ClientHolder {
 }
 
 pub fn start_server(socket_path: &str) {
-    fs::remove_file(socket_path);
+    fs::remove_file(socket_path).ok();
     let socket = Path::new(socket_path);
 
     let listener = match UnixListener::bind(socket) {
@@ -88,7 +86,7 @@ pub fn start_server(socket_path: &str) {
             match event.token() {
                 SERVER => {
                     match listener.accept() {
-                        Ok(Some((stream, sock_addr))) => {
+                        Ok(Some((stream, _))) => {
                             println!("Accepted!");
 
                             let token = client_holder.get_next_token().unwrap();
@@ -109,7 +107,7 @@ pub fn start_server(socket_path: &str) {
 
                         let size = match stream.read(&mut buf) {
                             Ok(size) => size,
-                            Err(err) => continue,
+                            Err(_) => continue,
                         };
 
                         if size == 0 {
@@ -117,7 +115,7 @@ pub fn start_server(socket_path: &str) {
                             poll.deregister(stream).unwrap();
                             println!("disconnected");
                         } else {
-                            stream.write(&buf[0..size]);
+                            stream.write(&buf[0..size]).ok();
                             println!("handled: {}", str::from_utf8(&buf).unwrap())
                         }
                     }
@@ -125,7 +123,6 @@ pub fn start_server(socket_path: &str) {
                         client_holder.unregister(token);
                     }
                 }
-                _ => unreachable!(),
             }
         }
     }

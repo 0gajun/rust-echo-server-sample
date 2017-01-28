@@ -31,7 +31,7 @@ fn parse_args() -> Result<Context, String> {
     };
 
     let mut opts = Options::new();
-    opts.optflag("s", "server", "launch as server");
+    opts.optflag("s", "server", "launch as server (by default, launch as client)");
     opts.optflag("h", "help", "print this help menu");
 
     let matches = match opts.parse(&args[1..]) {

@@ -7,3 +7,4 @@ authors = ["oga <oga.ivc.s27@gmail.com>"]
 getopts = "0.2"
 mio-uds = "0.6"
 mio = "0.6"
+linefeed = "0.2"
